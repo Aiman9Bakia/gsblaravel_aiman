@@ -1,7 +1,7 @@
 <?php
 namespace App\MyApp;
 use PDO;
-use Barryvdh\DomPDF\PDF
+use Barryvdh\DomPDF\PDF;
 use Illuminate\Support\Facades\Config;
 class PdoGsb{
         private static $serveur;
@@ -36,12 +36,28 @@ class PdoGsb{
  * @return l'id, le nom et le prénom sous la forme d'un tableau associatif
 */
 	public function getInfosVisiteur($login, $mdp){
-		$req = "select visiteur.id as id, visiteur.nom as nom, visiteur.prenom as prenom from visiteur
-        where visiteur.login='" . $login . "' and visiteur.mdp='" . $mdp ."'";
+		$req = "select visiteur.id as id, visiteur.nom as nom, visiteur.prenom as prenom,visiteur.type as type from visiteur
+        where type=2 and visiteur.login='" . $login . "' and visiteur.mdp='" . $mdp ."'";
     	$rs = $this->monPdo->query($req);
 		$ligne = $rs->fetch();
 		return $ligne;
 	}
+
+    public function  getInfosComptable($login,$mdp){
+        $req = "select visiteur.id as id, visiteur.nom as nom, visiteur.prenom as prenom,visiteur.type as type from visiteur
+        where type = 1 and visiteur.login='" . $login . "' and visiteur.mdp='" . $mdp ."'";
+        $rs = $this->monPdo->query($req);
+        $ligne = $rs->fetch();
+        return $ligne;
+    }
+
+    public function getInfosGestionnaire($login,$mdp){
+        $req = "select visiteur.id as id, visiteur.nom as nom, visiteur.prenom as prenom,visiteur.type as type from visiteur
+        where type=3 and visiteur.login='" . $login . "' and visiteur.mdp='" . $mdp ."'";
+        $rs = $this->monPdo->query($req);
+        $ligne = $rs->fetch();
+        return $ligne;
+    }
 
 
 
@@ -53,6 +69,8 @@ class PdoGsb{
  * @param $mois sous la forme aaaamm
  * @return l'id, le libelle et la quantité sous la forme d'un tableau associatif
 */
+
+
 	public function getLesFraisForfait($idVisiteur, $mois){
 		$req = "select fraisforfait.id as idfrais, fraisforfait.libelle as libelle,
 		lignefraisforfait.quantite as quantite from lignefraisforfait inner join fraisforfait
@@ -251,8 +269,8 @@ class PdoGsb{
 			$stmt = $this->monPdo->query($req);
 	}
 
-	public function selectFiche(){
-		$req="SELECT * FROM `fichefrais` where idVisiteur='$id';";
+	public function selectFiche($id){
+		$req="SELECT * FROM `fichefrais` where idVisiteur='$id'";
 		$stmt=$this->monPdo->query($req);
 	}
 
@@ -263,8 +281,7 @@ class PdoGsb{
 	}
 
     public function getComptable($login,$mdp){
-        $req = "select comptable.id as id, comptable.nom as nom, comptable.prenom as prenom from visiteur
-        where comptable.login='" . $login . "' and comptable.mdp='" . $mdp ."'";
+        $req = "select * from visiteur where login='$login' and mdp='$mdp' and type=1";
         $rs = $this->monPdo->query($req);
         $ligne = $rs->fetch();
         return $ligne;
