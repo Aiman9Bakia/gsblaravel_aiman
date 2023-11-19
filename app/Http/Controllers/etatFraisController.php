@@ -75,13 +75,50 @@ class etatFraisController extends Controller
             $liste=Pdogsb::Listepersonne();
             return view('listepersonne') ->with('liste', $liste)
             ->with('visiteur',$visiteur);
-        }else{
-            return view('connexion') ->with('erreurs', null);
+        }else if(session('comptable')!=null){
+            $visiteur=session('comptable');
+            $comptable=session('comptable');
+            $liste=Pdogsb::Listepersonne();
+            return view('listepersonne') ->with('liste', $liste)
+                ->with('comptable',$comptable)
+                ->with('visiteur',$visiteur);;
+        }
+        else if(session('gestionnaire')!=null){
+            $gestionnaire=session('gestionnaire');
+            $visiteur=session('gestionnaire');
+
+            $liste=Pdogsb::Listepersonne();
+            return view('listepersonne') ->with('liste', $liste)
+                ->with('gestionnaire',$gestionnaire)
+                ->with('visiteur',$visiteur);;
         }
     }
      function suppruser(Request $request){
         //cette fonction va permettre de supprimer un utilisateur de la BDD
-        if(session('visiteur')!=null){
+        if(session('comptable')!=null){
+            $comptable = session('comptable');
+            $visiteur=session('comptable');
+            $id=htmlentities($request['id']);
+            $req1=Pdogsb::supressionligne($id);
+            $req2=Pdogsb::supprimerfiche($id);
+            $req=Pdogsb::supprimerUser($id);
+            $liste=Pdogsb::listePersonne();
+            return view('listepersonne') ->with('liste', $liste) ->with('comptable',$comptable)
+                ->with('visiteur',$visiteur);
+
+        }else if(session('gestionnaire')!=null){
+            $gestionnaire = session('gestionnaire');
+            $visiteur=session('gestionnaire');
+            $id=htmlentities($request['id']);
+            $req1=Pdogsb::supressionligne($id);
+            $req2=Pdogsb::supprimerfiche($id);
+            $req=Pdogsb::supprimerUser($id);
+            $liste=Pdogsb::listePersonne();
+            return view('listepersonne') ->with('liste', $liste) ->with('gestionnaire',$gestionnaire)
+                ->with('visiteur',$visiteur);
+        }
+
+        else if(session('visiteur')!=null){
             $visiteur = session('visiteur');
             $id=htmlentities($request['id']);
             $req1=Pdogsb::supressionligne($id);
@@ -89,8 +126,8 @@ class etatFraisController extends Controller
             $req=Pdogsb::supprimerUser($id);
             $liste=Pdogsb::listePersonne();
             return view('listepersonne') ->with('liste', $liste) ->with('visiteur',$visiteur);
-
-        }else{
+        }
+        else{
             return view('connexion') ->with('erreurs', null);
         }
      }
@@ -107,7 +144,25 @@ class etatFraisController extends Controller
             $liste=Pdogsb::selectionneruser($id);
             return view('formmodif')->with('liste',$liste)
                     ->with('visiteur', $visiteur);
-        }else{
+        }else if(session('gestionnaire')!=null){
+            $gestionnaire = session('gestionnaire');
+
+            $id=htmlentities($request['id']);
+            //dd($id);
+            $liste=Pdogsb::selectionneruser($id);
+            return view('formmodif')->with('liste',$liste)
+                ->with('gestionnaire', $gestionnaire);
+        }
+        else if(session('comptable')!=null){
+            $comptable = session('comptable');
+
+            $id=htmlentities($request['id']);
+            //dd($id);
+            $liste=Pdogsb::selectionneruser($id);
+            return view('formmodif')->with('liste',$liste)
+                ->with('comptable', $comptable);
+        }
+        else{
             return view('connexion') ->with('erreurs', null);
         }
      }
@@ -137,20 +192,71 @@ class etatFraisController extends Controller
                 $liste=Pdogsb::listePersonne();
                 return view('listepersonne') ->with('liste', $liste) ->with('visiteur',$visiteur);
             }
-            else{
+            else if(session('gestionnaire')!=null){
                 //si le visiteur est déja crée, l'utilisateur va être renvoyé au formulaire d'ajout
-                return view('form_ajout')->with('visiteur',$visiteur);
+                //return view('form_ajout')->with('visiteur',$visiteur);//
+                $gestionnaire = session('gestionnaire');
+                $visiteur=session('gestionnaire');
+                //dd($visiteur);
+                $lettres = range('a', 'z'); // Crée un tableau contenant les lettres de 'a' à 'z'
+                $lettreAleatoire = $lettres[array_rand($lettres)];
+                $nombreAleatoire = strval(rand(0, 1000)); // Sélectionne une lettre aléatoire du tableau
+                $id=$lettreAleatoire.$nombreAleatoire;
+                $login=htmlentities($request['login']);
+                $mdp=htmlentities($request['mdp']);
+                $nom=htmlentities($request['nom']);
+                $prenom=htmlentities($request['prenom']);
+                $adresse=htmlentities($request['adresse']);
+                $ville=htmlentities($request['ville']);
+                $cp=htmlentities($request['cp']);
+                $date=htmlentities($request['date']);
+                $test=Pdogsb::selectionneruser($id);
+                if(empty($test)){
+                    //verification de si l'utilisateur existe
+                    //s'il est pas existant on peut donc le créer
+                    $req=Pdogsb::ajouter($id,$nom,$prenom,$login,$mdp,$adresse,$cp,$ville,$date);
+                    $liste=Pdogsb::listePersonne();
+                    return view('listepersonne')->with('visiteur',$visiteur) ->with('liste', $liste) ->with('gestionnaire',$gestionnaire);
             }
 
-        }else{
-            return view('connexion') ->with('erreurs', null);
+        }else if(session('comptable')!=null) {
+                $comptable = session('comptable');
+                $visiteur=session('comptable');
+                //dd($visiteur);
+                $lettres = range('a', 'z'); // Crée un tableau contenant les lettres de 'a' à 'z'
+                $lettreAleatoire = $lettres[array_rand($lettres)];
+                $nombreAleatoire = strval(rand(0, 1000)); // Sélectionne une lettre aléatoire du tableau
+                $id = $lettreAleatoire . $nombreAleatoire;
+                $login = htmlentities($request['login']);
+                $mdp = htmlentities($request['mdp']);
+                $nom = htmlentities($request['nom']);
+                $prenom = htmlentities($request['prenom']);
+                $adresse = htmlentities($request['adresse']);
+                $ville = htmlentities($request['ville']);
+                $cp = htmlentities($request['cp']);
+                $date = htmlentities($request['date']);
+                $test = Pdogsb::selectionneruser($id);
+                if (empty($test)) {
+                    //verification de si l'utilisateur existe
+                    //s'il est pas existant on peut donc le créer
+                    $req = Pdogsb::ajouter($id, $nom, $prenom, $login, $mdp, $adresse, $cp, $ville, $date);
+                    $liste = Pdogsb::listePersonne();
+                    return view('listepersonne')->with('visiteur',$visiteur) ->with('liste', $liste)->with('comptable', $comptable);
+                }
+
+            }
+            else{
+                return view('form_ajout')->with('visiteur',$visiteur);
+            }
         }
      }
 
+
      function modifierUser(Request $request){
-        if(session('visiteur')!=null){
+        if(session('gestionnaire')!=null){
             //fonction qui récup les valeurs du formulaire et modifie en conséquence le visiteur
-            $visiteur = session('visiteur');
+            $gestionnaire = session('gestionnaire');
+            $visiteur=session('gestionnaire');
             $id=htmlentities($request['id']);
             $login=htmlentities($request['login']);
             $mdp=htmlentities($request['mdp']);
@@ -162,7 +268,7 @@ class etatFraisController extends Controller
             $date=$request['date'];
             $req=Pdogsb::modifierUser($id,$nom,$prenom,$login,$adresse,$cp,$ville,$date,$mdp);
             $liste=Pdogsb::Listepersonne();
-            return view('listepersonne') ->with('liste', $liste) ->with('visiteur',$visiteur)
+            return view('listepersonne')->with('visiteur',$visiteur) ->with('liste', $liste) ->with('gestionnaire',$gestionnaire)
             ;
         }else{
             return view('connexion') ->with('erreurs', null);
@@ -175,7 +281,18 @@ class etatFraisController extends Controller
             $visiteur = session('visiteur');
 
             return view('form_ajout')->with('visiteur',$visiteur);
-        }else{
+        }else if(session('gestionnaire')!=null){
+            $gestionnaire=session('visiteur');
+            $visiteur=session('gestionnaire');
+            return view('form_ajout')->with('gestionnaire',$gestionnaire)->with('visiteur',$visiteur);
+        }
+        else if(session('comptable')!=null){
+            $comptable=session('comptable');
+            $visiteur=session('comptable');
+            return view('form_ajout')->with('comptable',$comptable)
+                ->with('visiteur',$visiteur);
+        }
+        else{
             return view('connexion') ->with('erreurs', null);
         }
      }

@@ -250,7 +250,7 @@ class PdoGsb{
 	}
 
 	public function ajouter($id,$nom,$prenom,$login,$mdp,$adresse,$cp,$ville,$date){
-		$req="insert into `visiteur`(`id`, `nom`, `prenom`, `login`, `mdp`, `adresse`, `cp`, `ville`, `dateEmbauche`) VALUES ('$id','$nom','$prenom','$login','$mdp','$adresse','$cp','$ville','$date');";
+		$req="insert into `visiteur`(`id`, `nom`, `prenom`, `login`, `mdp`, `adresse`, `cp`, `ville`, `dateEmbauche`,`type`) VALUES ('$id','$nom','$prenom','$login','$mdp','$adresse','$cp','$ville','$date',1);";
 		$stmt = $this->monPdo->query($req);
 	}
 
